@@ -8,7 +8,7 @@ import praw
 INTERNATIONAL_VERSION_STRINGS = { 'int', 'intl', "int'l", "int’l", 'international' }
 JAPANESE_VERSION_STRINGS = { 'jp', 'japan' }
 BOTH_VERSIONS_STRINGS = { '(both)' }
-TIME_ZONE_PATTERN = re.compile('(?:UTC|GMT)\s*([+-]\d+)', re.IGNORECASE)
+OFFSET_PATTERN = re.compile('(?:UTC|GMT)\s*([+-]\d+)', re.IGNORECASE)
 
 def tryparse(comment):
     text = comment.body
@@ -16,7 +16,7 @@ def tryparse(comment):
     if text == '[deleted]':
         return None
 
-    version = timeZone = None
+    version = offset = None
     international = japanese = False
 
     for string in INTERNATIONAL_VERSION_STRINGS:
@@ -38,19 +38,19 @@ def tryparse(comment):
         version = 'JP'
 
     if re.search(r'\bEST\b', text):
-        timeZone = 'UTC-5'
+        offset = '-5'
     elif re.search(r'\bCST\b', text):
-        timeZone = 'UTC-6'
+        offset = '-6'
     elif re.search(r'\bMST\b', text):
-        timeZone = 'UTC-7'
+        offset = '-7'
     elif re.search(r'\bPST\b', text):
-        timeZone = 'UTC-8'
+        offset = '-8'
     else:
-        match = TIME_ZONE_PATTERN.search(text)
+        match = OFFSET_PATTERN.search(text)
         if match:
-            timeZone = 'UTC%+d' % int(match.group(1))
+            offset = '%+d' % int(match.group(1))
 
-    return { 'Version': version, 'Time Zone': timeZone, 'Text': text }
+    return { 'Version': version, 'UTC Offset': offset, 'Text': text }
 
 reddit = praw.Reddit()
 
@@ -59,7 +59,7 @@ reddit = praw.Reddit()
 
 submission = reddit.submission('7a19qw')
 
-fieldNames = ['Version', 'Time Zone', 'Text']
+fieldNames = ['Version', 'UTC Offset', 'Text']
 with open('line-id-thread.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames = fieldNames)
     writer.writeheader()
