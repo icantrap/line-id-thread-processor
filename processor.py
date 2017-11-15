@@ -16,7 +16,7 @@ def tryparse(comment):
     if text == '[deleted]':
         return None
 
-    version = offset = None
+    version = offset = auto = unknown = None
     international = japanese = False
 
     for string in INTERNATIONAL_VERSION_STRINGS:
@@ -50,7 +50,15 @@ def tryparse(comment):
         if match:
             offset = '%+d' % int(match.group(1))
 
-    return { 'Version': version, 'UTC Offset': offset, 'Text': text }
+    if 'auto' in text.lower():
+        auto = 'yes'
+    if 'manual' in text.lower():
+        auto = 'no'
+
+    if 'unknown' in text.lower():
+        unknown = 'yes'
+
+    return { 'Version': version, 'UTC Offset': offset, 'Auto': auto, 'Unknown': unknown, 'Text': text }
 
 reddit = praw.Reddit()
 
@@ -59,10 +67,11 @@ reddit = praw.Reddit()
 
 submission = reddit.submission('7a19qw')
 
-fieldNames = ['Version', 'UTC Offset', 'Text']
+fieldNames = ['Version', 'UTC Offset', 'Auto', 'Unknown', 'Text']
 with open('line-id-thread.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames = fieldNames)
     writer.writeheader()
+    submission.comments.replace_more(limit=0)
     for top_level_comment in submission.comments:
         data = tryparse(top_level_comment)
         if data is not None:
