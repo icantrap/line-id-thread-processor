@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import csv
+import datetime
 import re
 
 import praw
@@ -18,6 +19,7 @@ def tryparse(comment):
 
     version = offset = auto = unknown = None
     international = japanese = False
+    time = datetime.datetime.fromtimestamp(comment.created_utc).strftime('%Y-%m-%d %H:%M:%S')
 
     for string in INTERNATIONAL_VERSION_STRINGS:
         if string in text.lower():
@@ -58,7 +60,7 @@ def tryparse(comment):
     if 'unknown' in text.lower():
         unknown = 'yes'
 
-    return { 'Version': version, 'UTC Offset': offset, 'Auto': auto, 'Unknown': unknown, 'Text': text }
+    return { 'Version': version, 'UTC Offset': offset, 'Auto': auto, 'Unknown': unknown, 'Time': time, 'Text': text }
 
 reddit = praw.Reddit()
 
@@ -67,7 +69,7 @@ reddit = praw.Reddit()
 
 submission = reddit.submission('7a19qw')
 
-fieldNames = ['Version', 'UTC Offset', 'Auto', 'Unknown', 'Text']
+fieldNames = ['Version', 'UTC Offset', 'Auto', 'Unknown', 'Time', 'Text']
 with open('line-id-thread.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames = fieldNames)
     writer.writeheader()
