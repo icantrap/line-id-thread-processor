@@ -8,7 +8,7 @@ import praw
 
 INTERNATIONAL_VERSION_STRINGS = { 'int', 'intl', "int'l", "int’l", 'international' }
 JAPANESE_VERSION_STRINGS = { 'jp', 'japan' }
-BOTH_VERSIONS_STRINGS = { '(both)' }
+BOTH_VERSIONS_STRINGS = { '(both)', 'both' }
 OFFSET_PATTERN = re.compile('(?:UTC|GMT)\s*([+-]\d+)', re.IGNORECASE)
 
 def tryparse(comment):
@@ -39,13 +39,13 @@ def tryparse(comment):
     elif japanese:
         version = 'JP'
 
-    if re.search(r'\bEST\b', text):
+    if re.search(r'\best\b', text.lower()):
         offset = '-5'
-    elif re.search(r'\bCST\b', text):
+    elif re.search(r'\bcst\b', text.lower()):
         offset = '-6'
-    elif re.search(r'\bMST\b', text):
+    elif re.search(r'\bmst\b', text.lower()):
         offset = '-7'
-    elif re.search(r'\bPST\b', text):
+    elif re.search(r'\bpst\b', text.lower()):
         offset = '-8'
     else:
         match = OFFSET_PATTERN.search(text)
@@ -73,7 +73,15 @@ fieldNames = ['Version', 'UTC Offset', 'Auto', 'Unknown', 'Time', 'Text']
 with open('line-id-thread.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames = fieldNames)
     writer.writeheader()
-    submission.comments.replace_more(limit=0)
+
+    while True:
+        try:
+            submission.comments.replace_more()
+            break
+        except PossibleExceptions:
+            print('Handling replace_more exception')
+            sleep(1)
+
     for top_level_comment in submission.comments:
         data = tryparse(top_level_comment)
         if data is not None:
