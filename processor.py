@@ -64,10 +64,10 @@ def tryparse(comment):
 
 reddit = praw.Reddit()
 
-# https://www.reddit.com/r/TsumTsum/comments/7a19qw/november_2017_line_id_thread/
+# https://www.reddit.com/r/TsumTsum/comments/7gsrb9/december_2017_line_id_thread/
 # find a better way
 
-submission = reddit.submission('7a19qw')
+submission = reddit.submission('7gsrb9')
 
 fieldNames = ['Version', 'UTC Offset', 'Auto', 'Unknown', 'Time', 'Text']
 with open('line-id-thread.csv', 'w') as file:
