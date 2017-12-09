@@ -3,8 +3,13 @@
 import csv
 import datetime
 import re
+import sys
 
 import praw
+
+if len(sys.argv) < 2:
+    print("Usage: processor.py thread-id")
+    sys.exit(0)
 
 INTERNATIONAL_VERSION_STRINGS = { 'int', 'intl', "int'l", "int’l", 'international' }
 JAPANESE_VERSION_STRINGS = { 'jp', 'japan' }
@@ -67,7 +72,7 @@ reddit = praw.Reddit()
 # https://www.reddit.com/r/TsumTsum/comments/7gsrb9/december_2017_line_id_thread/
 # find a better way
 
-submission = reddit.submission('7gsrb9')
+submission = reddit.submission(sys.argv[1])
 
 fieldNames = ['Version', 'UTC Offset', 'Auto', 'Unknown', 'Time', 'Text']
 with open('line-id-thread.csv', 'w') as file:
