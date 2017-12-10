@@ -46,3 +46,7 @@ $ pipenv run ./processor.py 7a19qw
 ```
 
 The file __line-id-thread.csv__ will be created. If the file already exists, then it will be overwritten.
+
+## LICENSE
+
+Licensed under the MIT License. See LICENSE for details.
